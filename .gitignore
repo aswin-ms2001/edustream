@@ -1,0 +1,55 @@
+# ==========================================
+# EduStream Master Root Git Ignore
+# ==========================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/          <-- Add this (Prevents local store copies if run in root)
+pnpm-lock.yaml
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js Frontend Specific Build Outputs
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+.vercel
+
+# TypeScript & Backend Build Outputs
+backend/dist/
+backend/build/
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+/coverage
+frontend/coverage/
+backend/coverage/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.production.local
+*.env
+*.pem
+
+# Debug logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+pnpm-debug.log*
+
+# IDE & System Files
+.DS_Store
+.vscode/
+.idea/
