@@ -1,8 +1,8 @@
-import { Router,type Router as RouterType } from "express";
+import { Router, type Router as RouterType } from "express";
+import authRouter from "@/interface-adapters/routes/authRoutes";
 
+const indexRouter: RouterType = Router();
 
-const indexRouter:RouterType = Router();
+indexRouter.use("/auth", authRouter);
 
-indexRouter.use("/auth");
-
-export default indexRouter
+export default indexRouter;
