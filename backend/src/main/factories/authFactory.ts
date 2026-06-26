@@ -1,4 +1,4 @@
-import { MongoUserRepository } from '@/infrastructure/database/repositories/MongoUserRepository';
+import { MongoUserRepository } from '@/infrastructure/database/mongodb/repositories/MongoUserRepository';
 import { RedisOTPRepository } from '@/infrastructure/services/RedisOTPRepository';
 import { InMemoryOTPRepository } from '@/infrastructure/services/InMemoryOTPRepository';
 import { JwtServiceImpl } from '@/infrastructure/auth/JwtServiceImpl';

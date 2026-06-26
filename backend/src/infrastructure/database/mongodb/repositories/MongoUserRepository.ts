@@ -1,6 +1,6 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { User } from '@/domain/user/entities/User';
-import { UserModel } from '@/infrastructure/database/models/UserModel';
+import { UserModel } from '@/infrastructure/database/mongodb/models/UserModel';
 
 export class MongoUserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {

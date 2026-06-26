@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import indexRouter from "@/interface-adapters/routes/index.routes";
 
 
-import { connectDatabase } from "@/infrastructure/database/mongodb/connectDatabase";
+import { connectDatabase } from "@/infrastructure/database/mongodb/connection/connectDatabase";
 
 const app:Express = express()
 
