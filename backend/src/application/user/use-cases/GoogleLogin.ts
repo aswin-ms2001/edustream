@@ -1,6 +1,6 @@
-import { IUserRepository } from '@/domain/user/repositories/IUserRepository';
-import { IGoogleAuthService } from '@/domain/user/repositories/IGoogleAuthService';
-import { ITokenService } from '@/domain/user/repositories/ITokenService';
+import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
+import type { IGoogleAuthService } from '@/domain/user/repositories/IGoogleAuthService';
+import type { ITokenService } from '@/domain/user/repositories/ITokenService';
 import { Role } from '@/domain/user/entities/Role';
 
 interface LoginResponse {

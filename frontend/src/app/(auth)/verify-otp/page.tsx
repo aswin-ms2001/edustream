@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, Suspense } from 'react';
@@ -6,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { otpSchema } from '@/lib/validations/auth';
+import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +29,7 @@ function OTPForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<OTPFormValues>({
-    resolver: zodResolver(otpSchema),
+    resolver: zodResolver(otpSchema as any),
   });
 
   const onSubmit = async (data: OTPFormValues) => {
@@ -38,14 +40,14 @@ function OTPForm() {
 
     setIsLoading(true);
     try {
-      // TODO: Connect to your real backend /api/auth/verify-otp
-      console.log('OTP Verification attempt:', { email, otp: data.otp });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await api.post('/auth/verify-otp', { email, otp: data.otp });
       
       toast.success('Email verified successfully!');
       router.push('/login');
-    } catch (error) {
-      toast.error('Invalid OTP. Please try again.');
+    } catch (error: unknown) {
+      const err = error as any;
+      const errorMsg = err.response?.data?.error || 'Invalid OTP. Please try again.';
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +69,7 @@ function OTPForm() {
           Verify your email
         </CardTitle>
         <CardDescription className="text-slate-500">
-          We've sent a 6-digit verification code to <br />
+          We&apos;ve sent a 6-digit verification code to <br />
           <span className="font-semibold text-slate-800">{email || 'your email'}</span>
         </CardDescription>
       </CardHeader>
@@ -91,7 +93,7 @@ function OTPForm() {
       </CardContent>
       <CardFooter className="flex justify-center border-t border-slate-100 pt-6 pb-6">
         <div className="text-sm text-slate-500">
-          Didn't receive the code?{' '}
+          Didn&apos;t receive the code?{' '}
           <button onClick={handleResend} className="text-blue-600 font-semibold hover:text-blue-500 hover:underline transition-all bg-transparent border-none cursor-pointer">
             Resend it
           </button>

@@ -1,5 +1,5 @@
-import { IUserRepository } from '@/domain/user/repositories/IUserRepository';
-import { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
+import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
+import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
 
 export class VerifyOTP {
   constructor(

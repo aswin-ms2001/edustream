@@ -1,5 +1,5 @@
-import { Response, NextFunction } from 'express';
-import { AuthRequest } from '@/interface-adapters/middlewares/authMiddleware';
+import type { Response, NextFunction } from 'express';
+import type { AuthRequest } from '@/interface-adapters/middlewares/authMiddleware';
 
 export const requireRole = (allowedRoles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {

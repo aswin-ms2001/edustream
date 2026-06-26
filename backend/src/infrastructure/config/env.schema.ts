@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const envSchema = z.object({
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(5000),
   MONGO_URI: z.string().min(1),
   JWT_SECRET: z.string().min(1).optional(), // Legacy, keeping it if used elsewhere
   JWT_ACCESS_SECRET: z.string().min(1),

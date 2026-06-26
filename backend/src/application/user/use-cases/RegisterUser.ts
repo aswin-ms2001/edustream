@@ -10,6 +10,7 @@ export class RegisterUser {
   ) {}
 
   async execute(userData: User): Promise<string> {
+
     const existingUser = await this.userRepository.findByEmail(userData.email);
     if (existingUser) {
       if (existingUser.isVerified) {

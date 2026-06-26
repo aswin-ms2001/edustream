@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { ITokenService } from '@/domain/user/repositories/ITokenService';
+import type { Request, Response, NextFunction } from 'express';
+import type { ITokenService } from '@/domain/user/repositories/ITokenService';
 
 export interface AuthRequest extends Request {
   user?: {

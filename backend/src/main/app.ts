@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import indexRouter from "@/interface-adapters/routes/index.routes";
 
 
+import { connectDatabase } from "@/infrastructure/database/mongodb/connectDatabase";
+
 const app:Express = express()
 
 
@@ -22,6 +24,11 @@ app.use(express.json());
 
 app.use("/",indexRouter);
 
-app.listen(env.PORT,()=>{
-    console.log(`Server running on port ${env.PORT}`);
-})
+connectDatabase().then(() => {
+    app.listen(env.PORT,()=>{
+        console.log(`Server running on port ${env.PORT}`);
+    });
+}).catch((error) => {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
+});

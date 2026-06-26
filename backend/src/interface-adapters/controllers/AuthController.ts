@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { RegisterUser } from '@/application/user/use-cases/RegisterUser';
 import { VerifyOTP } from '@/application/user/use-cases/VerifyOTP';
 import { LoginUser } from '@/application/user/use-cases/LoginUser';

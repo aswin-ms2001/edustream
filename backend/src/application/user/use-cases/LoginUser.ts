@@ -1,5 +1,5 @@
-import { IUserRepository } from '@/domain/user/repositories/IUserRepository';
-import { ITokenService } from '@/domain/user/repositories/ITokenService';
+import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
+import type { ITokenService } from '@/domain/user/repositories/ITokenService';
 import bcrypt from 'bcrypt';
 
 interface LoginResponse {
