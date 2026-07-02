@@ -1,12 +1,14 @@
 import type { User } from '@/domain/user/entities/User';
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
-import bcrypt from 'bcrypt';
+import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
 
 export class RegisterUser {
   constructor(
     private userRepository: IUserRepository,
-    private otpRepository: IOTPRepository
+    private otpRepository: IOTPRepository,
+    private passwordHasher:IPasswordHasher,
+    
   ) {}
 
   async execute(userData: User): Promise<string> {
@@ -23,7 +25,7 @@ export class RegisterUser {
       throw new Error('Password is required for local registration');
     }
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await this.passwordHasher.hash(userData.password);
     const userToSave: User = {
       ...userData,
       password: hashedPassword,

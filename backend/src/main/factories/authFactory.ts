@@ -11,6 +11,7 @@ import { RefreshTokens } from '@/application/user/use-cases/RefreshTokens';
 import { AuthController } from '@/interface-adapters/controllers/AuthController';
 import { env } from '@/infrastructure/config/env';
 import Redis from 'ioredis';
+import { BcryptPasswordHasher } from '@/infrastructure/security/BcryptPasswordHasher';
 
 // Singleton Redis Client
 let useRedis = true;
@@ -69,11 +70,12 @@ const otpRepository = {
 // Services
 const tokenService = new JwtServiceImpl(env.JWT_ACCESS_SECRET, env.JWT_REFRESH_SECRET);
 const googleAuthService = new GoogleAuthServiceImpl(env.GOOGLE_CLIENT_ID);
+const passwordHasher = new BcryptPasswordHasher();
 
 // Use Cases
-const registerUser = new RegisterUser(userRepository, otpRepository);
+const registerUser = new RegisterUser(userRepository, otpRepository,passwordHasher);
 const verifyOTP = new VerifyOTP(userRepository, otpRepository);
-const loginUser = new LoginUser(userRepository, tokenService);
+const loginUser = new LoginUser(userRepository, tokenService,passwordHasher);
 const googleLogin = new GoogleLogin(userRepository, googleAuthService, tokenService);
 const refreshTokens = new RefreshTokens(userRepository, tokenService);
 
