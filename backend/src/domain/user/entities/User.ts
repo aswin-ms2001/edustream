@@ -1,13 +1,35 @@
 import { Role } from '@/domain/user/entities/Role';
 
-export interface User {
-  id?: string;
-  name: string;
-  email: string;
-  password?: string; // Optional because of Google Auth
-  role: Role;
-  isVerified: boolean;
-  googleId?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+export class User {
+  constructor(
+    public id: string | null,
+    public name: string,
+    public email: string,
+    public role: Role,
+    public isVerified: boolean,
+    public createdAt?: Date,
+    public updatedAt?: Date,
+    public googleId?: string,
+    public password?: string ,
+  ) {}
+    static createGoogleUser(
+      name: string,
+      email: string,
+      googleId: string,
+      role: Role
+    ): User {
+
+        return new User(
+            null,          // id not known yet
+            name,
+            email,
+            role,
+            true,
+            new Date(),
+            new Date(),
+            googleId,
+            undefined
+        );
+
+    }
 }
