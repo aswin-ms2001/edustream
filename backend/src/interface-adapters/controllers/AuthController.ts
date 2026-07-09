@@ -16,6 +16,7 @@ export class AuthController {
 
   async register(req: Request, res: Response) {
     try {
+      console.log(req.body)
       const message = await this.registerUser.execute(req.body);
       res.status(201).json({ success: true, message });
     } catch (error: any) {
