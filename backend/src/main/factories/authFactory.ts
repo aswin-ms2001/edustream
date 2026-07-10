@@ -1,5 +1,6 @@
 import { MongoUserRepository } from '@/infrastructure/database/mongodb/repositories/MongoUserRepository';
-import { RedisOTPRepository } from '@/infrastructure/services/RedisOTPRepository';
+import { OTPRepository } from '@/application/user/use-cases/OTPRepository';
+import { RedisCacheService } from '@/infrastructure/services/RedisCacheService';
 
 import { JwtServiceImpl } from '@/infrastructure/auth/JwtServiceImpl';
 import { GoogleAuthServiceImpl } from '@/infrastructure/services/GoogleAuthServiceImpl';
@@ -23,9 +24,12 @@ redisClient.on('error', (err) => {
   console.error('Redis connection failed:', err);
 });
 
+// Services / Caching
+const cacheService = new RedisCacheService(redisClient);
+
 // Repositories
 const userRepository = new MongoUserRepository();
-const otpRepository = new RedisOTPRepository(redisClient);
+const otpRepository = new OTPRepository(cacheService);
 
 // Services
 const tokenService = new JwtServiceImpl(env.JWT_ACCESS_SECRET, env.JWT_REFRESH_SECRET);

@@ -41,7 +41,7 @@ export class RegisterUser {
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Save OTP to Redis with 5 minutes TTL
+    // Save OTP to cache with 5 minutes TTL
     await this.otpRepository.saveOTP(userData.email, otp, 300);
 
     // TODO: Send OTP via Email (Mocked for now)

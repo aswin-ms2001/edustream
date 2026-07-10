@@ -1,25 +1,21 @@
 import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
-import Redis from 'ioredis';
+import type { ICacheService } from '@/application/port/services/ICacheService';
 
-export class RedisOTPRepository implements IOTPRepository {
-  private redis: Redis;
-
-  constructor(redisClient: Redis) {
-    this.redis = redisClient;
-  }
+export class OTPRepository implements IOTPRepository {
+  constructor(private cacheService: ICacheService) {}
 
   async saveOTP(email: string, otp: string, ttlSeconds: number): Promise<void> {
     const key = `otp:${email}`;
-    await this.redis.set(key, otp, 'EX', ttlSeconds);
+    await this.cacheService.set(key, otp, ttlSeconds);
   }
 
   async getOTP(email: string): Promise<string | null> {
     const key = `otp:${email}`;
-    return await this.redis.get(key);
+    return await this.cacheService.get(key);
   }
 
   async deleteOTP(email: string): Promise<void> {
     const key = `otp:${email}`;
-    await this.redis.del(key);
+    await this.cacheService.del(key);
   }
 }
