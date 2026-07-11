@@ -1,12 +1,15 @@
 import type { User } from '@/domain/user/entities/User';
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
-import bcrypt from 'bcrypt';
+import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
+import type { ILogger } from '@/application/port/services/ILogger';
 
 export class RegisterUser {
   constructor(
     private userRepository: IUserRepository,
-    private otpRepository: IOTPRepository
+    private otpRepository: IOTPRepository,
+    private passwordHasher: IPasswordHasher,
+    private logger: ILogger
   ) {}
 
   async execute(userData: User): Promise<string> {
@@ -23,7 +26,7 @@ export class RegisterUser {
       throw new Error('Password is required for local registration');
     }
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await this.passwordHasher.hash(userData.password);
     const userToSave: User = {
       ...userData,
       password: hashedPassword,
@@ -39,11 +42,11 @@ export class RegisterUser {
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Save OTP to Redis with 5 minutes TTL
+    // Save OTP to cache with 5 minutes TTL
     await this.otpRepository.saveOTP(userData.email, otp, 300);
 
     // TODO: Send OTP via Email (Mocked for now)
-    console.log(`[MOCK EMAIL SENDER] OTP for ${userData.email} is: ${otp}`);
+    this.logger.info(`[MOCK EMAIL SENDER] OTP for ${userData.email} is: ${otp}`);
 
     return 'OTP sent successfully to email';
   }

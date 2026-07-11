@@ -2,6 +2,7 @@ import type { IUserRepository } from '@/domain/user/repositories/IUserRepository
 import type { IGoogleAuthService } from '@/domain/user/repositories/IGoogleAuthService';
 import type { ITokenService } from '@/domain/user/repositories/ITokenService';
 import { Role } from '@/domain/user/entities/Role';
+import { User } from '@/domain/user/entities/User';
 
 interface LoginResponse {
   accessToken: string;
@@ -30,13 +31,8 @@ export class GoogleLogin {
 
     if (!user) {
       // 3. If new user, create as Student by default
-      user = await this.userRepository.save({
-        name: googleUser.name,
-        email: googleUser.email,
-        googleId: googleUser.googleId,
-        role: Role.STUDENT,
-        isVerified: true, // Google emails are already verified
-      });
+      const newUser = User.createGoogleUser(googleUser.name, googleUser.email, googleUser.googleId, Role.STUDENT);
+      user = await this.userRepository.save(newUser);
     } else if (!user.googleId) {
       // 4. If user exists from local auth, link Google ID
       await this.userRepository.update(user.id as string, {

@@ -73,7 +73,7 @@ export default function SignupPage() {
     const initializeGoogle = () => {
       if ((window as any).google) {
         (window as any).google.accounts.id.initialize({
-          client_id: '17221812562-2krr6lorah5oar1jbfdpg1i9fonc8fj9.apps.googleusercontent.com',
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
         });
         (window as any).google.accounts.id.renderButton(

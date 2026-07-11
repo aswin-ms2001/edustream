@@ -1,6 +1,6 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { ITokenService } from '@/domain/user/repositories/ITokenService';
-import bcrypt from 'bcrypt';
+import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
 
 interface LoginResponse {
   accessToken: string;
@@ -16,7 +16,8 @@ interface LoginResponse {
 export class LoginUser {
   constructor(
     private userRepository: IUserRepository,
-    private tokenService: ITokenService
+    private tokenService: ITokenService,
+    private passwordHasher:IPasswordHasher
   ) {}
 
   async execute(email: string, password: string): Promise<LoginResponse> {
@@ -34,7 +35,7 @@ export class LoginUser {
       throw new Error('User signed up with Google. Please login with Google.');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await this.passwordHasher.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }
