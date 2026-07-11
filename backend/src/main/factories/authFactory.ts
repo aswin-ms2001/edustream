@@ -11,18 +11,8 @@ import { GoogleLogin } from '@/application/user/use-cases/GoogleLogin';
 import { RefreshTokens } from '@/application/user/use-cases/RefreshTokens';
 import { AuthController } from '@/interface-adapters/controllers/AuthController';
 import { env } from '@/infrastructure/config/env';
-import Redis from 'ioredis';
+import { redisClient } from '@/infrastructure/database/redis/redisClient';
 import { BcryptPasswordHasher } from '@/infrastructure/security/BcryptPasswordHasher';
-
-// Singleton Redis Client
-export const redisClient = new Redis(env.REDIS_URL, {
-  maxRetriesPerRequest: 1,
-  showFriendlyErrorStack: true
-});
-
-redisClient.on('error', (err) => {
-  console.error('Redis connection failed:', err);
-});
 
 // Services / Caching
 const cacheService = new RedisCacheService(redisClient);
