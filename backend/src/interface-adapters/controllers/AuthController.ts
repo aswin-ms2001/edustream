@@ -4,6 +4,7 @@ import { VerifyOTP } from '@/application/user/use-cases/VerifyOTP';
 import { LoginUser } from '@/application/user/use-cases/LoginUser';
 import { GoogleLogin } from '@/application/user/use-cases/GoogleLogin';
 import { RefreshTokens } from '@/application/user/use-cases/RefreshTokens';
+import type { ILogger } from '@/application/port/services/ILogger';
 
 export class AuthController {
   constructor(
@@ -11,12 +12,13 @@ export class AuthController {
     private verifyOTP: VerifyOTP,
     private loginUser: LoginUser,
     private googleLogin: GoogleLogin,
-    private refreshTokens: RefreshTokens
+    private refreshTokens: RefreshTokens,
+    private logger: ILogger
   ) {}
 
   async register(req: Request, res: Response) {
     try {
-      console.log(req.body)
+      this.logger.info('Registering user payload', req.body);
       const message = await this.registerUser.execute(req.body);
       res.status(201).json({ success: true, message });
     } catch (error: any) {

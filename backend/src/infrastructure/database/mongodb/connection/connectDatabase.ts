@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import type { ILogger } from "@/application/port/services/ILogger";
 
-export async function connectDatabase(): Promise<void> {
+export async function connectDatabase(logger: ILogger): Promise<void> {
   await mongoose.connect(
     process.env.MONGO_URI!
   );
 
-  console.log("MongoDB Connected");
+  logger.info("MongoDB Connected");
 }

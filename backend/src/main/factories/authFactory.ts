@@ -1,6 +1,7 @@
 import { MongoUserRepository } from '@/infrastructure/database/mongodb/repositories/MongoUserRepository';
 import { OTPRepository } from '@/application/user/use-cases/OTPRepository';
 import { RedisCacheService } from '@/infrastructure/services/RedisCacheService';
+import { WinstonLogger } from '@/infrastructure/logging/WinstonLogger';
 
 import { JwtServiceImpl } from '@/infrastructure/auth/JwtServiceImpl';
 import { GoogleAuthServiceImpl } from '@/infrastructure/services/GoogleAuthServiceImpl';
@@ -13,6 +14,9 @@ import { AuthController } from '@/interface-adapters/controllers/AuthController'
 import { env } from '@/infrastructure/config/env';
 import { redisClient } from '@/infrastructure/database/redis/redisClient';
 import { BcryptPasswordHasher } from '@/infrastructure/security/BcryptPasswordHasher';
+
+// Logger
+export const logger = new WinstonLogger();
 
 // Services / Caching
 const cacheService = new RedisCacheService(redisClient);
@@ -27,7 +31,7 @@ const googleAuthService = new GoogleAuthServiceImpl(env.GOOGLE_CLIENT_ID);
 const passwordHasher = new BcryptPasswordHasher();
 
 // Use Cases
-const registerUser = new RegisterUser(userRepository, otpRepository,passwordHasher);
+const registerUser = new RegisterUser(userRepository, otpRepository, passwordHasher, logger);
 const verifyOTP = new VerifyOTP(userRepository, otpRepository);
 const loginUser = new LoginUser(userRepository, tokenService,passwordHasher);
 const googleLogin = new GoogleLogin(userRepository, googleAuthService, tokenService);
@@ -39,6 +43,7 @@ export const authController = new AuthController(
   verifyOTP,
   loginUser,
   googleLogin,
-  refreshTokens
+  refreshTokens,
+  logger
 );
 
