@@ -14,9 +14,8 @@ import { AuthController } from '@/interface-adapters/controllers/AuthController'
 import { env } from '@/infrastructure/config/env';
 import { redisClient } from '@/infrastructure/database/redis/redisClient';
 import { BcryptPasswordHasher } from '@/infrastructure/security/BcryptPasswordHasher';
+import { logger } from './loggerFactory';
 
-// Logger
-export const logger = new WinstonLogger();
 
 // Services / Caching
 const cacheService = new RedisCacheService(redisClient);

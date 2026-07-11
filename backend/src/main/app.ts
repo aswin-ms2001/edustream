@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import indexRouter from "@/interface-adapters/routes/index.routes";
 import { connectDatabase } from "@/infrastructure/database/mongodb/connection/connectDatabase";
-import { logger } from "@/main/factories/authFactory";
+import { logger } from "@/main/factories/loggerFactory";
 import { redisClient } from "@/infrastructure/database/redis/redisClient";
 import { errorMiddleware } from "@/interface-adapters/middlewares/errorMiddleware";
 
