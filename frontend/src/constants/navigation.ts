@@ -3,7 +3,7 @@ export interface NavigationItem {
   href: string;
 }
 
-export interface AuthNavigationItem extends NavigationItem {}
+export type AuthNavigationItem = NavigationItem;
 
 export const PUBLIC_NAVIGATION: NavigationItem[] = [
   {

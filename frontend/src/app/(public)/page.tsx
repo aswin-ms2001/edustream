@@ -5,17 +5,18 @@ import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import WhyChooseSection from "@/components/landing/WhyChooseSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
+import PageContainer from "@/components/common/PageContainer";
 
 export default function HomePage() {
   return (
-    <>
+    <PageContainer>
       <HomeNavbar />
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
       <WhyChooseSection />
-      <CTASection/>
+      <CTASection />
       <Footer />
-    </>
+    </PageContainer>
   );
 }

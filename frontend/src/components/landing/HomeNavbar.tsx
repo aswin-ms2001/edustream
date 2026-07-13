@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, ChevronDown, GraduationCap } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 
 import {
   PUBLIC_NAVIGATION,
@@ -10,6 +10,7 @@ import {
 } from "@/constants/navigation";
 
 import { Button } from "@/components/ui/button";
+import BrandLogo from "@/components/common/BrandLogo";
 
 import {
   DropdownMenu,
@@ -27,20 +28,11 @@ import {
 export default function HomeNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
 
-        <Link
-          href="/"
-          className="flex items-center gap-2"
-        >
-          <GraduationCap className="h-8 w-8 text-primary" />
-
-          <span className="text-2xl font-black">
-            EduStream
-          </span>
-        </Link>
+        <BrandLogo textClassName="font-black" />
 
         {/* Desktop Navigation */}
 
@@ -49,7 +41,7 @@ export default function HomeNavbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium transition-colors hover:text-primary"
+              className="text-sm font-medium transition-colors hover:text-primary rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {item.label}
             </Link>
@@ -81,7 +73,7 @@ export default function HomeNavbar() {
 
                 <DropdownMenuItem key={item.href} asChild>
 
-                  <Link href={item.href}>
+                  <Link href={item.href} className="w-full">
                     {item.label}
                   </Link>
 
@@ -115,7 +107,7 @@ export default function HomeNavbar() {
 
                 <DropdownMenuItem key={item.href} asChild>
 
-                  <Link href={item.href}>
+                  <Link href={item.href} className="w-full">
                     {item.label}
                   </Link>
 
@@ -140,6 +132,7 @@ export default function HomeNavbar() {
               <Button
                 size="icon"
                 variant="ghost"
+                aria-label="Toggle navigation menu"
               >
                 <Menu className="h-6 w-6" />
               </Button>
@@ -155,7 +148,7 @@ export default function HomeNavbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-lg font-medium"
+                    className="text-lg font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {item.label}
                   </Link>
@@ -173,6 +166,7 @@ export default function HomeNavbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {item.label}
                   </Link>
@@ -190,6 +184,7 @@ export default function HomeNavbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {item.label}
                   </Link>
