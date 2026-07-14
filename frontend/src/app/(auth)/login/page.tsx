@@ -1,26 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validations/auth';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loginThunk } from '@/store/features/auth/authThunk';
+import { selectAuthLoading } from '@/store/features/auth/authSelectors';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectAuthLoading);
 
   const {
     register,
@@ -31,62 +34,14 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
     try {
-      const response = await api.post('/auth/login', data);
-      toast.success(`Welcome back, ${response.data.user.name}!`);
+      const response = await dispatch(loginThunk(data)).unwrap();
+      toast.success(`Welcome back, ${response.user.name}!`);
       router.push('/dashboard');
-    } catch (error: unknown) {
-      const err = error as any;
-      const errorMsg = err.response?.data?.error || 'Failed to log in. Please check your credentials.';
-      toast.error(errorMsg);
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast.error(error || 'Failed to log in. Please check your credentials.');
     }
   };
-
-  useEffect(() => {
-    const handleCredentialResponse = async (response: any) => {
-      setIsLoading(true);
-      try {
-        const res = await api.post('/auth/google-login', { idToken: response.credential });
-        toast.success(`Welcome back, ${res.data.user.name}!`);
-        router.push('/dashboard');
-      } catch (error: any) {
-        toast.error(error.response?.data?.error || 'Google login failed');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    let script = document.getElementById('google-gsi-script') as HTMLScriptElement;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = 'google-gsi-script';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-    }
-
-    const initializeGoogle = () => {
-      if ((window as any).google) {
-        (window as any).google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-        });
-        (window as any).google.accounts.id.renderButton(
-          document.getElementById('google-signin-btn'),
-          { theme: 'outline', size: 'large', width: 382 }
-        );
-      }
-    };
-
-    script.onload = initializeGoogle;
-    if ((window as any).google) {
-      initializeGoogle();
-    }
-  }, [router]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -148,9 +103,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="w-full flex justify-center">
-            <div id="google-signin-btn" />
-          </div>
+          <GoogleSignInButton buttonId="google-signin-btn" />
         </CardContent>
         <CardFooter className="flex justify-center border-t border-slate-100 pt-6 pb-6">
           <div className="text-sm text-slate-500">

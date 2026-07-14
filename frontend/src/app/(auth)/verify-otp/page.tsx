@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { otpSchema } from '@/lib/validations/auth';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MailCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { verifyOtpThunk, resendOtpThunk } from '@/store/features/auth/authThunk';
+import { selectAuthLoading } from '@/store/features/auth/authSelectors';
 
 type OTPFormValues = z.infer<typeof otpSchema>;
 
@@ -21,8 +23,8 @@ function OTPForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
-  
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectAuthLoading);
 
   const {
     register,
@@ -38,23 +40,27 @@ function OTPForm() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      await api.post('/auth/verify-otp', { email, otp: data.otp });
+      await dispatch(verifyOtpThunk({ email, otp: data.otp })).unwrap();
       
       toast.success('Email verified successfully!');
       router.push('/login');
-    } catch (error: unknown) {
-      const err = error as any;
-      const errorMsg = err.response?.data?.error || 'Invalid OTP. Please try again.';
-      toast.error(errorMsg);
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast.error(error || 'Invalid OTP. Please try again.');
     }
   };
 
-  const handleResend = () => {
-    toast.success('A new OTP has been sent to your email.');
+  const handleResend = async () => {
+    if (!email) {
+      toast.error('Email missing.');
+      return;
+    }
+    try {
+      await dispatch(resendOtpThunk(email)).unwrap();
+      toast.success('A new OTP has been sent to your email.');
+    } catch (error: any) {
+      toast.error(error || 'Failed to resend OTP.');
+    }
   };
 
   return (
