@@ -18,7 +18,7 @@ export default function Sidebar({
   return (
     <aside
       className={cn(
-        "flex h-screen w-72 flex-col border-r bg-background",
+        "flex h-full w-72 flex-col border-r bg-background",
         className
       )}
     >

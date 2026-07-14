@@ -8,7 +8,7 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppShell navigation={STUDENT_NAVIGATION}>
+    <AppShell role="student">
       {children}
     </AppShell>
   );
