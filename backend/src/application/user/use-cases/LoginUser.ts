@@ -40,7 +40,7 @@ export class LoginUser {
       throw new Error('Invalid email or password');
     }
 
-    const payload = { userId: user.id as string, role: user.role };
+    const payload = { userId: user.id, role: user.role };
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
@@ -48,7 +48,7 @@ export class LoginUser {
       accessToken,
       refreshToken,
       user: {
-        id: user.id as string,
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,

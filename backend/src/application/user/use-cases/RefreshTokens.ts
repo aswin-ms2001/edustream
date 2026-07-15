@@ -25,7 +25,7 @@ export class RefreshTokens {
       throw new Error('User is not verified');
     }
 
-    const newPayload = { userId: user.id as string, role: user.role };
+    const newPayload = { userId: user.id, role: user.role };
     const newAccessToken = this.tokenService.generateAccessToken(newPayload);
     const newRefreshToken = this.tokenService.generateRefreshToken(newPayload);
 

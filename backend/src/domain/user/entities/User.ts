@@ -2,7 +2,7 @@ import { Role } from '@/domain/user/entities/Role';
 
 export class User {
   constructor(
-    public id: string | null,
+    public id: string,
     public name: string,
     public email: string,
     public role: Role,
@@ -13,6 +13,7 @@ export class User {
     public password?: string ,
   ) {}
     static createGoogleUser(
+      id: string,
       name: string,
       email: string,
       googleId: string,
@@ -20,7 +21,7 @@ export class User {
     ): User {
 
         return new User(
-            null,          // id not known yet
+            id,
             name,
             email,
             role,

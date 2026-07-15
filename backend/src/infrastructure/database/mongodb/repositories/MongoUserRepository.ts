@@ -1,5 +1,5 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
-import type { User } from '@/domain/user/entities/User';
+import { User } from '@/domain/user/entities/User';
 import { UserModel } from '@/infrastructure/database/mongodb/models/UserModel';
 
 export class MongoUserRepository implements IUserRepository {
@@ -10,34 +10,39 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const userDoc = await UserModel.findById(id);
+    const userDoc = await UserModel.findOne({ userId: id });
     if (!userDoc) return null;
     return this.mapToDomain(userDoc);
   }
 
   async save(user: User): Promise<User> {
-    const newUser = new UserModel(user);
+    const { id, ...rest } = user;
+    const newUser = new UserModel({
+      userId: id,
+      ...rest,
+    });
     const savedUser = await newUser.save();
     return this.mapToDomain(savedUser);
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {
-    const updatedUser = await UserModel.findByIdAndUpdate(id, userData, { new: true });
+    const { id: _, ...rest } = userData as any;
+    const updatedUser = await UserModel.findOneAndUpdate({ userId: id }, rest, { new: true });
     if (!updatedUser) return null;
     return this.mapToDomain(updatedUser);
   }
 
   private mapToDomain(userDoc: any): User {
-    return {
-      id: userDoc._id.toString(),
-      name: userDoc.name,
-      email: userDoc.email,
-      password: userDoc.password,
-      role: userDoc.role,
-      isVerified: userDoc.isVerified,
-      googleId: userDoc.googleId,
-      createdAt: userDoc.createdAt,
-      updatedAt: userDoc.updatedAt,
-    };
+    return new User(
+      userDoc.userId,
+      userDoc.name,
+      userDoc.email,
+      userDoc.role,
+      userDoc.isVerified,
+      userDoc.createdAt,
+      userDoc.updatedAt,
+      userDoc.googleId,
+      userDoc.password
+    );
   }
 }

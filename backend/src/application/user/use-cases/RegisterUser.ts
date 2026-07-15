@@ -1,7 +1,8 @@
-import type { User } from '@/domain/user/entities/User';
+import { User } from '@/domain/user/entities/User';
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
 import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
+import type { IUuidGenerator } from '@/application/port/services/IUuidGenerator';
 import type { ILogger } from '@/application/port/services/ILogger';
 
 export class RegisterUser {
@@ -9,6 +10,7 @@ export class RegisterUser {
     private userRepository: IUserRepository,
     private otpRepository: IOTPRepository,
     private passwordHasher: IPasswordHasher,
+    private uuidGenerator: IUuidGenerator,
     private logger: ILogger
   ) {}
 
@@ -27,16 +29,34 @@ export class RegisterUser {
     }
 
     const hashedPassword = await this.passwordHasher.hash(userData.password);
-    const userToSave: User = {
-      ...userData,
-      password: hashedPassword,
-      isVerified: false,
-    };
 
     if (!existingUser) {
+      const uuid = this.uuidGenerator.generate();
+      const userToSave = new User(
+        uuid,
+        userData.name,
+        userData.email,
+        userData.role,
+        false,
+        undefined,
+        undefined,
+        undefined,
+        hashedPassword
+      );
       await this.userRepository.save(userToSave);
     } else {
-      await this.userRepository.update(existingUser.id as string, userToSave);
+      const userToSave = new User(
+        existingUser.id,
+        userData.name,
+        userData.email,
+        userData.role,
+        false,
+        existingUser.createdAt,
+        new Date(),
+        existingUser.googleId,
+        hashedPassword
+      );
+      await this.userRepository.update(existingUser.id, userToSave);
     }
 
     // Generate a 6-digit OTP

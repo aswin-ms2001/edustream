@@ -1,6 +1,7 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { IGoogleAuthService } from '@/domain/user/repositories/IGoogleAuthService';
 import type { ITokenService } from '@/domain/user/repositories/ITokenService';
+import type { IUuidGenerator } from '@/application/port/services/IUuidGenerator';
 import { Role } from '@/domain/user/entities/Role';
 import { User } from '@/domain/user/entities/User';
 
@@ -19,7 +20,8 @@ export class GoogleLogin {
   constructor(
     private userRepository: IUserRepository,
     private googleAuthService: IGoogleAuthService,
-    private tokenService: ITokenService
+    private tokenService: ITokenService,
+    private uuidGenerator: IUuidGenerator
   ) {}
 
   async execute(idToken: string): Promise<LoginResponse> {
@@ -31,11 +33,12 @@ export class GoogleLogin {
 
     if (!user) {
       // 3. If new user, create as Student by default
-      const newUser = User.createGoogleUser(googleUser.name, googleUser.email, googleUser.googleId, Role.STUDENT);
+      const uuid = this.uuidGenerator.generate();
+      const newUser = User.createGoogleUser(uuid, googleUser.name, googleUser.email, googleUser.googleId, Role.STUDENT);
       user = await this.userRepository.save(newUser);
     } else if (!user.googleId) {
       // 4. If user exists from local auth, link Google ID
-      await this.userRepository.update(user.id as string, {
+      await this.userRepository.update(user.id, {
         googleId: googleUser.googleId,
         isVerified: true, // Ensure they are marked verified
       });
@@ -44,7 +47,7 @@ export class GoogleLogin {
     }
 
     // 5. Generate tokens
-    const payload = { userId: user.id as string, role: user.role };
+    const payload = { userId: user.id, role: user.role };
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
@@ -52,7 +55,7 @@ export class GoogleLogin {
       accessToken,
       refreshToken,
       user: {
-        id: user.id as string,
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,

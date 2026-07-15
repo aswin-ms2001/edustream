@@ -23,7 +23,7 @@ export class VerifyOTP {
       throw new Error('User not found');
     }
 
-    await this.userRepository.update(user.id as string, { isVerified: true });
+    await this.userRepository.update(user.id, { isVerified: true });
     await this.otpRepository.deleteOTP(email);
 
     return true;

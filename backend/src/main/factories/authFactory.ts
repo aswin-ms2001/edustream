@@ -14,6 +14,7 @@ import { AuthController } from '@/interface-adapters/controllers/AuthController'
 import { env } from '@/infrastructure/config/env';
 import { redisClient } from '@/infrastructure/database/redis/redisClient';
 import { BcryptPasswordHasher } from '@/infrastructure/security/BcryptPasswordHasher';
+import { UuidGenerator } from '@/infrastructure/services/UuidGenerator';
 import { logger } from './loggerFactory';
 
 
@@ -28,12 +29,13 @@ const otpRepository = new OTPRepository(cacheService);
 const tokenService = new JwtServiceImpl(env.JWT_ACCESS_SECRET, env.JWT_REFRESH_SECRET);
 const googleAuthService = new GoogleAuthServiceImpl(env.GOOGLE_CLIENT_ID);
 const passwordHasher = new BcryptPasswordHasher();
+const uuidGenerator = new UuidGenerator();
 
 // Use Cases
-const registerUser = new RegisterUser(userRepository, otpRepository, passwordHasher, logger);
+const registerUser = new RegisterUser(userRepository, otpRepository, passwordHasher, uuidGenerator, logger);
 const verifyOTP = new VerifyOTP(userRepository, otpRepository);
-const loginUser = new LoginUser(userRepository, tokenService,passwordHasher);
-const googleLogin = new GoogleLogin(userRepository, googleAuthService, tokenService);
+const loginUser = new LoginUser(userRepository, tokenService, passwordHasher);
+const googleLogin = new GoogleLogin(userRepository, googleAuthService, tokenService, uuidGenerator);
 const refreshTokens = new RefreshTokens(userRepository, tokenService);
 
 // Controller
