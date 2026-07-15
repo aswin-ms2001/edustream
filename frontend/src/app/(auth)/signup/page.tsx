@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -30,6 +29,7 @@ export default function SignupPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<SignupFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(signupSchema as any),
   });
 
@@ -39,8 +39,9 @@ export default function SignupPage() {
       
       toast.success('Registration successful! Please check your email/console for OTP.');
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
-    } catch (error: any) {
-      toast.error(error || 'Failed to create account. Please try again.');
+    } catch (error) {
+      const errorMsg = typeof error === 'string' ? error : 'Failed to create account. Please try again.';
+      toast.error(errorMsg);
     }
   };
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect } from 'react';
@@ -11,18 +10,35 @@ interface GoogleSignInButtonProps {
   buttonId: string;
 }
 
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by?: string;
+}
+
+interface GoogleGsiAccountsId {
+  initialize: (config: { client_id: string | undefined; callback: (res: GoogleCredentialResponse) => void }) => void;
+  renderButton: (element: HTMLElement | null, options: { theme?: string; size?: string; width?: number }) => void;
+}
+
+interface GoogleGsi {
+  accounts: {
+    id: GoogleGsiAccountsId;
+  };
+}
+
 export default function GoogleSignInButton({ buttonId }: GoogleSignInButtonProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
-    const handleCredentialResponse = async (response: any) => {
+    const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
       try {
         const res = await dispatch(googleLoginThunk(response.credential)).unwrap();
         toast.success(`Welcome back, ${res.user.name}!`);
-        router.push('/dashboard');
-      } catch (error: any) {
-        toast.error(error || 'Google login failed');
+        router.push('/student/dashboard');
+      } catch (error) {
+        const errorMsg = typeof error === 'string' ? error : 'Google login failed';
+        toast.error(errorMsg);
       }
     };
 
@@ -37,12 +53,13 @@ export default function GoogleSignInButton({ buttonId }: GoogleSignInButtonProps
     }
 
     const initializeGoogle = () => {
-      if ((window as any).google) {
-        (window as any).google.accounts.id.initialize({
+      const google = (window as unknown as { google?: GoogleGsi }).google;
+      if (google) {
+        google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
         });
-        (window as any).google.accounts.id.renderButton(
+        google.accounts.id.renderButton(
           document.getElementById(buttonId),
           { theme: 'outline', size: 'large', width: 382 }
         );
@@ -50,7 +67,8 @@ export default function GoogleSignInButton({ buttonId }: GoogleSignInButtonProps
     };
 
     script.onload = initializeGoogle;
-    if ((window as any).google) {
+    const google = (window as unknown as { google?: GoogleGsi }).google;
+    if (google) {
       initializeGoogle();
     }
   }, [dispatch, router, buttonId]);

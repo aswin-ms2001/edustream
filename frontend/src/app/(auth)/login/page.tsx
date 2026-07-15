@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -30,6 +29,7 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(loginSchema as any),
   });
 
@@ -37,9 +37,10 @@ export default function LoginPage() {
     try {
       const response = await dispatch(loginThunk(data)).unwrap();
       toast.success(`Welcome back, ${response.user.name}!`);
-      router.push('/dashboard');
-    } catch (error: any) {
-      toast.error(error || 'Failed to log in. Please check your credentials.');
+      router.push('/student/dashboard');
+    } catch (error) {
+      const errorMsg = typeof error === 'string' ? error : 'Failed to log in. Please check your credentials.';
+      toast.error(errorMsg);
     }
   };
 

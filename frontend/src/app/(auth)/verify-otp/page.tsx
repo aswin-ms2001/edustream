@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Suspense } from 'react';
@@ -31,6 +30,7 @@ function OTPForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<OTPFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(otpSchema as any),
   });
 
@@ -45,8 +45,9 @@ function OTPForm() {
       
       toast.success('Email verified successfully!');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error || 'Invalid OTP. Please try again.');
+    } catch (error) {
+      const errorMsg = typeof error === 'string' ? error : 'Invalid OTP. Please try again.';
+      toast.error(errorMsg);
     }
   };
 
@@ -58,8 +59,9 @@ function OTPForm() {
     try {
       await dispatch(resendOtpThunk(email)).unwrap();
       toast.success('A new OTP has been sent to your email.');
-    } catch (error: any) {
-      toast.error(error || 'Failed to resend OTP.');
+    } catch (error) {
+      const errorMsg = typeof error === 'string' ? error : 'Failed to resend OTP.';
+      toast.error(errorMsg);
     }
   };
 
