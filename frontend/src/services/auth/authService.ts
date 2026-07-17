@@ -13,6 +13,7 @@ import type {
   ResetPasswordRequest,
   ResetPasswordResponse,
   ResendOtpResponse,
+  RestoreSessionResponse,
 } from '@/store/features/auth/authTypes';
 
 export const authService = {
@@ -43,6 +44,11 @@ export const authService = {
 
   refreshToken: async (): Promise<RefreshTokenResponse> => {
     const response = await api.post<RefreshTokenResponse>('/auth/refresh');
+    return response.data;
+  },
+
+  restoreSession: async (): Promise<RestoreSessionResponse> => {
+    const response = await api.post<RestoreSessionResponse>('/auth/refresh');
     return response.data;
   },
 

@@ -10,12 +10,14 @@ import {
   forgotPasswordThunk,
   resetPasswordThunk,
   resendOtpThunk,
+  restoreSessionThunk,
 } from "./authThunk";
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitializing: true,
   error: null,
 };
 
@@ -128,6 +130,28 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.user = null;
         state.isAuthenticated = false;
+      });
+
+    // Restore Session
+    builder
+      .addCase(restoreSessionThunk.pending, (state) => {
+        state.isLoading = true;
+        state.isInitializing = true;
+        state.error = null;
+      })
+      .addCase(restoreSessionThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isInitializing = false;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(restoreSessionThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isInitializing = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = action.payload as string;
       });
 
     // Forgot Password

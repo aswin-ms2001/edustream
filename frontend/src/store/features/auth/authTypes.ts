@@ -11,6 +11,7 @@ export interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitializing: boolean;
   error: string | null;
 }
 
@@ -92,4 +93,9 @@ export interface ResendOtpRequest {
 export interface ResendOtpResponse {
   success: boolean;
   message: string;
+}
+
+export interface RestoreSessionResponse {
+  success: boolean;
+  user: AuthUser;
 }

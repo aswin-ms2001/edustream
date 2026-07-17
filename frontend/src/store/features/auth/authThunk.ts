@@ -14,6 +14,7 @@ import type {
   ResetPasswordRequest,
   ResetPasswordResponse,
   ResendOtpResponse,
+  RestoreSessionResponse,
 } from "./authTypes";
 
 interface RejectedErrorResponse {
@@ -127,6 +128,24 @@ export const refreshTokenThunk = createAsyncThunk<
       const err = error as RejectedErrorResponse;
       return rejectWithValue(
         err.response?.data?.error || "Refresh token failed"
+      );
+    }
+  }
+);
+
+export const restoreSessionThunk = createAsyncThunk<
+  RestoreSessionResponse,
+  void,
+  { rejectValue: string }
+>(
+  "auth/restoreSession",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await authService.restoreSession();
+    } catch (error) {
+      const err = error as RejectedErrorResponse;
+      return rejectWithValue(
+        err.response?.data?.error || "Session restoration failed"
       );
     }
   }
