@@ -1,10 +1,10 @@
-import type { ISessionRepository } from '@/domain/session/repositories/ISessionRepository';
+import type { ISessionRepository, ITransactionContext } from '@/domain/session/repositories/ISessionRepository';
 import { Session } from '@/domain/session/entities/Session';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
-import { SessionModel } from '@/infrastructure/database/mongodb/models/SessionModel';
+import { SessionModel, type ISessionDocument } from '@/infrastructure/database/mongodb/models/SessionModel';
 
 export class MongoSessionRepository implements ISessionRepository {
-  async create(session: Session): Promise<void> {
+  async create(session: Session, context?: ITransactionContext): Promise<void> {
     const sessionDoc = new SessionModel({
       sessionId: session.id,
       userId: session.userId,
@@ -13,7 +13,7 @@ export class MongoSessionRepository implements ISessionRepository {
       expiresAt: session.expiresAt,
       revokedAt: session.revokedAt,
     });
-    await sessionDoc.save();
+    await sessionDoc.save({ session: context?.session });
   }
 
   async findById(id: string): Promise<Session | null> {
@@ -34,14 +34,15 @@ export class MongoSessionRepository implements ISessionRepository {
     return this.mapToDomain(sessionDoc);
   }
 
-  async revoke(sessionId: string): Promise<void> {
+  async revoke(sessionId: string, context?: ITransactionContext): Promise<void> {
     await SessionModel.findOneAndUpdate(
       { sessionId },
-      { status: SessionStatus.REVOKED, revokedAt: new Date() }
+      { status: SessionStatus.REVOKED, revokedAt: new Date() },
+      { session: context?.session }
     );
   }
 
-  private mapToDomain(sessionDoc: any): Session {
+  private mapToDomain(sessionDoc: ISessionDocument): Session {
     return new Session(
       sessionDoc.sessionId,
       sessionDoc.userId,

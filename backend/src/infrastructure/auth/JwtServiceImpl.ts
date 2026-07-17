@@ -32,4 +32,22 @@ export class JwtServiceImpl implements ITokenService {
       throw new Error('Invalid or expired refresh token');
     }
   }
+
+  /**
+   * Retrieves the expiration date of a token.
+   * NOTE: This method uses jwt.decode() without verifying the signature under the assumption
+   * that the token is already trusted (e.g., freshly generated). Do NOT use this method
+   * on untrusted tokens from client requests without verifying the signature first.
+   */
+  getTokenExpiration(token: string): Date {
+    try {
+      const decoded = jwt.decode(token) as { exp?: number };
+      if (!decoded || typeof decoded.exp === 'undefined') {
+        throw new Error('Invalid token: missing exp claim');
+      }
+      return new Date(decoded.exp * 1000);
+    } catch (error: any) {
+      throw new Error(`Failed to parse token expiration: ${error.message}`);
+    }
+  }
 }
