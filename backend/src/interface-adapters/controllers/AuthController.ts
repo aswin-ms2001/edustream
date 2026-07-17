@@ -4,6 +4,7 @@ import { VerifyOTP } from '@/application/user/use-cases/VerifyOTP';
 import { LoginUser } from '@/application/user/use-cases/LoginUser';
 import { GoogleLogin } from '@/application/user/use-cases/GoogleLogin';
 import { RefreshTokens } from '@/application/user/use-cases/RefreshTokens';
+import { LogoutUser } from '@/application/user/use-cases/LogoutUser';
 import type { ILogger } from '@/application/port/services/ILogger';
 
 export class AuthController {
@@ -13,6 +14,7 @@ export class AuthController {
     private loginUser: LoginUser,
     private googleLogin: GoogleLogin,
     private refreshTokens: RefreshTokens,
+    private logoutUser: LogoutUser,
     private logger: ILogger
   ) {}
 
@@ -75,9 +77,15 @@ export class AuthController {
   }
 
   async logout(req: Request, res: Response) {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.status(200).json({ success: true, message: 'Logged out successfully' });
+    try {
+      const refreshToken = req.cookies?.refreshToken;
+      await this.logoutUser.execute(refreshToken);
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      res.status(200).json({ success: true, message: 'Logged out successfully' });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 
   private setCookies(res: Response, accessToken: string, refreshToken: string) {

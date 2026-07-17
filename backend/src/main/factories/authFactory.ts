@@ -10,6 +10,7 @@ import { VerifyOTP } from '@/application/user/use-cases/VerifyOTP';
 import { LoginUser } from '@/application/user/use-cases/LoginUser';
 import { GoogleLogin } from '@/application/user/use-cases/GoogleLogin';
 import { RefreshTokens } from '@/application/user/use-cases/RefreshTokens';
+import { LogoutUser } from '@/application/user/use-cases/LogoutUser';
 import { AuthController } from '@/interface-adapters/controllers/AuthController';
 import { env } from '@/infrastructure/config/env';
 import { redisClient } from '@/infrastructure/database/redis/redisClient';
@@ -64,6 +65,11 @@ const refreshTokens = new RefreshTokens(
   sessionRepository,
   tokenHashService
 );
+const logoutUser = new LogoutUser(
+  sessionRepository,
+  tokenService,
+  tokenHashService
+);
 
 // Controller
 export const authController = new AuthController(
@@ -72,6 +78,7 @@ export const authController = new AuthController(
   loginUser,
   googleLogin,
   refreshTokens,
+  logoutUser,
   logger
 );
 
