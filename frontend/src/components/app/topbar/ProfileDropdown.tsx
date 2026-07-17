@@ -62,7 +62,7 @@ export default function ProfileDropdown({
     try {
       await dispatch(logoutThunk()).unwrap();
       setIsDialogOpen(false);
-      router.push("/login");
+      router.replace("/login");
     } catch (error) {
       toast.error(typeof error === "string" ? error : "Logout failed");
     }
