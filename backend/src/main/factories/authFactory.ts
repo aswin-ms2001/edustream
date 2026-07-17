@@ -58,7 +58,12 @@ const googleLogin = new GoogleLogin(
   tokenHashService,
   transactionManager
 );
-const refreshTokens = new RefreshTokens(userRepository, tokenService);
+const refreshTokens = new RefreshTokens(
+  userRepository,
+  tokenService,
+  sessionRepository,
+  tokenHashService
+);
 
 // Controller
 export const authController = new AuthController(
