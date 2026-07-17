@@ -49,7 +49,15 @@ const loginUser = new LoginUser(
   tokenHashService,
   transactionManager
 );
-const googleLogin = new GoogleLogin(userRepository, googleAuthService, tokenService, uuidGenerator);
+const googleLogin = new GoogleLogin(
+  userRepository,
+  googleAuthService,
+  tokenService,
+  uuidGenerator,
+  sessionRepository,
+  tokenHashService,
+  transactionManager
+);
 const refreshTokens = new RefreshTokens(userRepository, tokenService);
 
 // Controller
