@@ -3,11 +3,8 @@ import type { ITokenService } from '@/domain/user/repositories/ITokenService';
 import type { ISessionRepository } from '@/domain/session/repositories/ISessionRepository';
 import type { ITokenHashService } from '@/application/port/services/ITokenHashService';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
-
-interface RefreshResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+import { UserMapper } from '@/application/user/mapper/UserMapper';
+import type { AuthenticationResultDto } from '@/application/user/dto/AuthenticationResultDto';
 
 export class RefreshTokens {
   constructor(
@@ -17,7 +14,7 @@ export class RefreshTokens {
     private tokenHashService: ITokenHashService
   ) {}
 
-  async execute(token: string): Promise<RefreshResponse> {
+  async execute(token: string): Promise<AuthenticationResultDto> {
     // 1. Verify the refresh token JWT
     const payload = this.tokenService.verifyRefreshToken(token);
 
@@ -61,6 +58,7 @@ export class RefreshTokens {
     return {
       accessToken: newAccessToken,
       refreshToken: token,
+      user: UserMapper.toAuthUserDto(user),
     };
   }
 }

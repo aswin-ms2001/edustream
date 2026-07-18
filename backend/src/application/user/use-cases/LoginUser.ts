@@ -7,17 +7,8 @@ import type { ITokenHashService } from '@/application/port/services/ITokenHashSe
 import type { ITransactionManager } from '@/application/port/services/ITransactionManager';
 import { Session } from '@/domain/session/entities/Session';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
-
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
-}
+import { UserMapper } from '@/application/user/mapper/UserMapper';
+import type { AuthenticationResultDto } from '@/application/user/dto/AuthenticationResultDto';
 
 export class LoginUser {
   constructor(
@@ -30,7 +21,7 @@ export class LoginUser {
     private transactionManager: ITransactionManager
   ) {}
 
-  async execute(email: string, password: string): Promise<LoginResponse> {
+  async execute(email: string, password: string): Promise<AuthenticationResultDto> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
@@ -81,12 +72,7 @@ export class LoginUser {
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: UserMapper.toAuthUserDto(user),
     };
   }
 }

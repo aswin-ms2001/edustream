@@ -9,17 +9,8 @@ import { Role } from '@/domain/user/entities/Role';
 import { User } from '@/domain/user/entities/User';
 import { Session } from '@/domain/session/entities/Session';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
-
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
-}
+import { UserMapper } from '@/application/user/mapper/UserMapper';
+import type { AuthenticationResultDto } from '@/application/user/dto/AuthenticationResultDto';
 
 export class GoogleLogin {
   constructor(
@@ -32,7 +23,7 @@ export class GoogleLogin {
     private transactionManager: ITransactionManager
   ) {}
 
-  async execute(idToken: string): Promise<LoginResponse> {
+  async execute(idToken: string): Promise<AuthenticationResultDto> {
     // 1. Verify the Google Token
     const googleUser = await this.googleAuthService.verifyToken(idToken);
 
@@ -86,12 +77,7 @@ export class GoogleLogin {
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: UserMapper.toAuthUserDto(user),
     };
   }
 }

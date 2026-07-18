@@ -70,7 +70,7 @@ export class AuthController {
       const result = await this.refreshTokens.execute(refreshToken);
       
       this.setCookies(res, result.accessToken, result.refreshToken);
-      res.status(200).json({ success: true, message: 'Tokens refreshed' });
+      res.status(200).json({ success: true, user: result.user });
     } catch (error: any) {
       res.status(401).json({ success: false, error: error.message });
     }
