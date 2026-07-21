@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { ITokenService } from '@/domain/user/repositories/ITokenService';
+import { AuthenticationError } from '@/application/errors';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -9,20 +10,20 @@ export interface AuthRequest extends Request {
 }
 
 export const authMiddleware = (tokenService: ITokenService) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, _res: Response, next: NextFunction) => {
     try {
       // Allow token in cookie or authorization header
       const token = req.cookies?.accessToken || req.headers.authorization?.split(' ')[1];
       
       if (!token) {
-        return res.status(401).json({ success: false, error: 'Access denied. No token provided.' });
+        throw new AuthenticationError('Access denied. No token provided.');
       }
 
       const decoded = tokenService.verifyAccessToken(token);
       req.user = decoded;
       next();
-    } catch (error: any) {
-      res.status(401).json({ success: false, error: 'Invalid or expired access token' });
+    } catch (error) {
+      next(error);
     }
   };
 };

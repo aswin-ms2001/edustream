@@ -1,6 +1,7 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import { User } from '@/domain/user/entities/User';
 import { UserModel } from '@/infrastructure/database/mongodb/models/UserModel';
+import { ConflictError } from '@/application/errors';
 
 export class MongoUserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
@@ -16,13 +17,20 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   async save(user: User): Promise<User> {
-    const { id, ...rest } = user;
-    const newUser = new UserModel({
-      userId: id,
-      ...rest,
-    });
-    const savedUser = await newUser.save();
-    return this.mapToDomain(savedUser);
+    try {
+      const { id, ...rest } = user;
+      const newUser = new UserModel({
+        userId: id,
+        ...rest,
+      });
+      const savedUser = await newUser.save();
+      return this.mapToDomain(savedUser);
+    } catch (error: any) {
+      if (error.code === 11000) {
+        throw new ConflictError('User with this email already exists');
+      }
+      throw error;
+    }
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {

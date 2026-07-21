@@ -9,6 +9,7 @@ import { Session } from '@/domain/session/entities/Session';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
 import { UserMapper } from '@/application/user/mapper/UserMapper';
 import type { AuthenticationResultDto } from '@/application/user/dto/AuthenticationResultDto';
+import { AuthenticationError } from '@/application/errors';
 
 export class LoginUser {
   constructor(
@@ -25,20 +26,20 @@ export class LoginUser {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new AuthenticationError('Invalid email or password');
     }
 
     if (!user.isVerified) {
-      throw new Error('User email is not verified');
+      throw new AuthenticationError('User email is not verified');
     }
 
     if (!user.password) {
-      throw new Error('User signed up with Google. Please login with Google.');
+      throw new AuthenticationError('User signed up with Google. Please login with Google.');
     }
 
     const isPasswordValid = await this.passwordHasher.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      throw new AuthenticationError('Invalid email or password');
     }
 
     const payload = { userId: user.id, role: user.role };

@@ -5,6 +5,7 @@ import type { ITokenHashService } from '@/application/port/services/ITokenHashSe
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
 import { UserMapper } from '@/application/user/mapper/UserMapper';
 import type { AuthenticationResultDto } from '@/application/user/dto/AuthenticationResultDto';
+import { AuthenticationError, NotFoundError } from '@/application/errors';
 
 export class RefreshTokens {
   constructor(
@@ -24,31 +25,31 @@ export class RefreshTokens {
 
     // 3. Validate Session exists and is active/not expired
     if (!session) {
-      throw new Error('Session not found');
+      throw new AuthenticationError('Session not found');
     }
 
     if (session.status !== SessionStatus.ACTIVE) {
-      throw new Error('Session is not active');
+      throw new AuthenticationError('Session is not active');
     }
 
     if (session.expiresAt.getTime() < Date.now()) {
-      throw new Error('Session has expired');
+      throw new AuthenticationError('Session has expired');
     }
 
     // 4. Validate JWT payload against the session (defense-in-depth)
     if (payload.userId !== session.userId) {
-      throw new Error('Invalid session payload mismatch');
+      throw new AuthenticationError('Invalid session payload mismatch');
     }
 
     // 5. Load user using session.userId as the source of truth
     const user = await this.userRepository.findById(session.userId);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundError('User not found');
     }
 
     if (!user.isVerified) {
-      throw new Error('User is not verified');
+      throw new AuthenticationError('User is not verified');
     }
 
     // 6. Generate a new Access Token (without rotating the Refresh Token)

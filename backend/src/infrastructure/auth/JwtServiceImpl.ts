@@ -1,5 +1,6 @@
 import type { ITokenService, ITokenPayload } from '@/domain/user/repositories/ITokenService';
 import jwt from 'jsonwebtoken';
+import { AuthenticationError } from '@/application/errors';
 
 export class JwtServiceImpl implements ITokenService {
   constructor(
@@ -21,7 +22,7 @@ export class JwtServiceImpl implements ITokenService {
     try {
       return jwt.verify(token, this.accessSecret) as ITokenPayload;
     } catch (error) {
-      throw new Error('Invalid or expired access token');
+      throw new AuthenticationError('Invalid or expired access token');
     }
   }
 
@@ -29,7 +30,7 @@ export class JwtServiceImpl implements ITokenService {
     try {
       return jwt.verify(token, this.refreshSecret) as ITokenPayload;
     } catch (error) {
-      throw new Error('Invalid or expired refresh token');
+      throw new AuthenticationError('Invalid or expired refresh token');
     }
   }
 

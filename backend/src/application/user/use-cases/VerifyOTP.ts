@@ -1,5 +1,6 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
+import { ValidationError, NotFoundError } from '@/application/errors';
 
 export class VerifyOTP {
   constructor(
@@ -11,16 +12,16 @@ export class VerifyOTP {
     const cachedOTP = await this.otpRepository.getOTP(email);
 
     if (!cachedOTP) {
-      throw new Error('OTP has expired or does not exist');
+      throw new ValidationError('OTP has expired or does not exist');
     }
 
     if (cachedOTP !== otp) {
-      throw new Error('Invalid OTP');
+      throw new ValidationError('Invalid OTP');
     }
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundError('User not found');
     }
 
     await this.userRepository.update(user.id, { isVerified: true });

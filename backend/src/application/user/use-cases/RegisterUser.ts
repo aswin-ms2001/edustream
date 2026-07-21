@@ -4,6 +4,8 @@ import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
 import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
 import type { IUuidGenerator } from '@/application/port/services/IUuidGenerator';
 import type { ILogger } from '@/application/port/services/ILogger';
+import { ConflictError } from '@/application/errors';
+import { ValidationError } from '@/application/errors';
 
 export class RegisterUser {
   constructor(
@@ -19,13 +21,13 @@ export class RegisterUser {
     const existingUser = await this.userRepository.findByEmail(userData.email);
     if (existingUser) {
       if (existingUser.isVerified) {
-        throw new Error('User already exists and is verified');
+        throw new ConflictError('User already exists and is verified');
       }
       // If user exists but is not verified, we can allow re-registration or resend OTP.
     }
 
     if (!userData.password) {
-      throw new Error('Password is required for local registration');
+      throw new ValidationError('Password is required for local registration');
     }
 
     const hashedPassword = await this.passwordHasher.hash(userData.password);

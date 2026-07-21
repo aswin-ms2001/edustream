@@ -1,5 +1,6 @@
 import type { IGoogleAuthService, IGoogleUser } from '@/domain/user/repositories/IGoogleAuthService';
 import { OAuth2Client } from 'google-auth-library';
+import { AuthenticationError } from '@/application/errors';
 
 export class GoogleAuthServiceImpl implements IGoogleAuthService {
   private client: OAuth2Client;
@@ -16,7 +17,7 @@ export class GoogleAuthServiceImpl implements IGoogleAuthService {
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email || !payload.name || !payload.sub) {
-      throw new Error('Invalid Google token payload');
+      throw new AuthenticationError('Invalid Google token payload');
     }
 
     return {

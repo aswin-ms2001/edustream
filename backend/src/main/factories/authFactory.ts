@@ -1,7 +1,6 @@
 import { MongoUserRepository } from '@/infrastructure/database/mongodb/repositories/MongoUserRepository';
 import { OTPRepository } from '@/application/user/use-cases/OTPRepository';
 import { RedisCacheService } from '@/infrastructure/services/RedisCacheService';
-import { WinstonLogger } from '@/infrastructure/logging/WinstonLogger';
 
 import { JwtServiceImpl } from '@/infrastructure/auth/JwtServiceImpl';
 import { GoogleAuthServiceImpl } from '@/infrastructure/services/GoogleAuthServiceImpl';
@@ -78,7 +77,6 @@ export const authController = new AuthController(
   loginUser,
   googleLogin,
   refreshTokens,
-  logoutUser,
-  logger
+  logoutUser
 );
 
