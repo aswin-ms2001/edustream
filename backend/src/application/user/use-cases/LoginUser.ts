@@ -42,23 +42,22 @@ export class LoginUser {
       throw new AuthenticationError('Invalid email or password');
     }
 
+    // Enforce domain invariant for account status (throws BusinessRuleViolationError if suspended)
+    user.ensureCanLogin();
+
     const payload = { userId: user.id, role: user.role };
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
-    // Hash refresh token & get its expiration date before starting database transaction
     const refreshTokenHash = this.tokenHashService.hash(refreshToken);
     const expiresAt = this.tokenService.getTokenExpiration(refreshToken);
 
-    // Execute session lifecycle inside a database transaction to ensure atomicity
     await this.transactionManager.execute(async (context) => {
-      // Find any existing active session and revoke it
       const activeSession = await this.sessionRepository.findActiveByUserId(user.id);
       if (activeSession) {
         await this.sessionRepository.revoke(activeSession.id, context);
       }
 
-      // Create a new session
       const newSession = new Session(
         this.uuidGenerator.generate(),
         user.id,

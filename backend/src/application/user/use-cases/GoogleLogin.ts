@@ -5,7 +5,6 @@ import type { IUuidGenerator } from '@/application/port/services/IUuidGenerator'
 import type { ISessionRepository } from '@/domain/session/repositories/ISessionRepository';
 import type { ITokenHashService } from '@/application/port/services/ITokenHashService';
 import type { ITransactionManager } from '@/application/port/services/ITransactionManager';
-import { Role } from '@/domain/user/entities/Role';
 import { User } from '@/domain/user/entities/User';
 import { Session } from '@/domain/session/entities/Session';
 import { SessionStatus } from '@/domain/session/enums/SessionStatus';
@@ -31,18 +30,23 @@ export class GoogleLogin {
     let user = await this.userRepository.findByEmail(googleUser.email);
 
     if (!user) {
-      // 3. If new user, create as Student by default
+      // 3. If new user, create as Student using the domain factory method
       const uuid = this.uuidGenerator.generate();
-      const newUser = User.createGoogleUser(uuid, googleUser.name, googleUser.email, googleUser.googleId, Role.STUDENT);
+      const newUser = User.registerGoogleStudent(uuid, googleUser.name, googleUser.email, googleUser.googleId);
       user = await this.userRepository.save(newUser);
-    } else if (!user.googleId) {
-      // 4. If user exists from local auth, link Google ID
-      await this.userRepository.update(user.id, {
-        googleId: googleUser.googleId,
-        isVerified: true, // Ensure they are marked verified
-      });
-      user.googleId = googleUser.googleId;
-      user.isVerified = true;
+    } else {
+      // 4. Existing user: Enforce Google login domain rules (Google login restricted to STUDENT, user must be ACTIVE)
+      user.ensureGoogleLoginAllowed();
+      user.ensureCanLogin();
+
+      if (!user.googleId) {
+        await this.userRepository.update(user.id, {
+          googleId: googleUser.googleId,
+          isVerified: true,
+        });
+        user.googleId = googleUser.googleId;
+        user.isVerified = true;
+      }
     }
 
     // 5. Generate tokens
@@ -50,19 +54,15 @@ export class GoogleLogin {
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
-    // Hash refresh token & get its expiration date before starting database transaction
     const refreshTokenHash = this.tokenHashService.hash(refreshToken);
     const expiresAt = this.tokenService.getTokenExpiration(refreshToken);
 
-    // Execute session lifecycle inside a database transaction to ensure atomicity
     await this.transactionManager.execute(async (context) => {
-      // Find any existing active session and revoke it
       const activeSession = await this.sessionRepository.findActiveByUserId(user!.id);
       if (activeSession) {
         await this.sessionRepository.revoke(activeSession.id, context);
       }
 
-      // Create a new session
       const newSession = new Session(
         this.uuidGenerator.generate(),
         user!.id,

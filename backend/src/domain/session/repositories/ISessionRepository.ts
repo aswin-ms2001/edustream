@@ -10,4 +10,5 @@ export interface ISessionRepository {
   findActiveByUserId(userId: string): Promise<Session | null>;
   findByRefreshTokenHash(refreshTokenHash: string): Promise<Session | null>;
   revoke(sessionId: string, context?: ITransactionContext): Promise<void>;
+  revokeAllByUserId(userId: string, context?: ITransactionContext): Promise<void>;
 }

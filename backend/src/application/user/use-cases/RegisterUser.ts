@@ -4,8 +4,7 @@ import type { IOTPRepository } from '@/domain/user/repositories/IOTPRepository';
 import type { IPasswordHasher } from '@/application/port/services/IPasswordHasher';
 import type { IUuidGenerator } from '@/application/port/services/IUuidGenerator';
 import type { ILogger } from '@/application/port/services/ILogger';
-import { ConflictError } from '@/application/errors';
-import { ValidationError } from '@/application/errors';
+import { ConflictError, ValidationError } from '@/application/errors';
 
 export class RegisterUser {
   constructor(
@@ -16,14 +15,13 @@ export class RegisterUser {
     private logger: ILogger
   ) {}
 
-  async execute(userData: User): Promise<string> {
-
+  async execute(userData: { name: string; email: string; password?: string }): Promise<string> {
     const existingUser = await this.userRepository.findByEmail(userData.email);
     if (existingUser) {
       if (existingUser.isVerified) {
         throw new ConflictError('User already exists and is verified');
       }
-      // If user exists but is not verified, we can allow re-registration or resend OTP.
+      // If user exists but is not verified, we allow re-registration by updating password & resending OTP.
     }
 
     if (!userData.password) {
@@ -34,30 +32,10 @@ export class RegisterUser {
 
     if (!existingUser) {
       const uuid = this.uuidGenerator.generate();
-      const userToSave = new User(
-        uuid,
-        userData.name,
-        userData.email,
-        userData.role,
-        false,
-        undefined,
-        undefined,
-        undefined,
-        hashedPassword
-      );
+      const userToSave = User.registerStudent(uuid, userData.name, userData.email, hashedPassword);
       await this.userRepository.save(userToSave);
     } else {
-      const userToSave = new User(
-        existingUser.id,
-        userData.name,
-        userData.email,
-        userData.role,
-        false,
-        existingUser.createdAt,
-        new Date(),
-        existingUser.googleId,
-        hashedPassword
-      );
+      const userToSave = User.registerStudent(existingUser.id, userData.name, userData.email, hashedPassword);
       await this.userRepository.update(existingUser.id, userToSave);
     }
 
@@ -67,7 +45,6 @@ export class RegisterUser {
     // Save OTP to cache with 5 minutes TTL
     await this.otpRepository.saveOTP(userData.email, otp, 300);
 
-    // TODO: Send OTP via Email (Mocked for now)
     this.logger.info(`[MOCK EMAIL SENDER] OTP for ${userData.email} is: ${otp}`);
 
     return 'OTP sent successfully to email';

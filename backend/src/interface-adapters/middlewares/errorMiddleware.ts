@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { ILogger } from '@/application/port/services/ILogger';
 import { ApplicationError } from '@/application/errors';
+import { DomainError } from '@/domain/shared/errors';
 
 export function errorMiddleware(logger: ILogger) {
   return (err: Error, req: Request, res: Response, _next: NextFunction) => {
@@ -9,8 +10,25 @@ export function errorMiddleware(logger: ILogger) {
       method: req.method,
     };
 
+    if (err instanceof DomainError) {
+      // Domain invariant violation — log at warn level and respond with 403 Forbidden
+      logger.warn(err.message, {
+        code: err.code,
+        ...requestContext,
+      });
+
+      res.status(403).json({
+        success: false,
+        error: {
+          code: err.code,
+          message: err.message,
+        },
+      });
+      return;
+    }
+
     if (err instanceof ApplicationError) {
-      // Expected business errors — log at warn level
+      // Application error — log at warn level and respond with designated httpStatus
       logger.warn(err.message, {
         code: err.code,
         ...requestContext,
@@ -26,7 +44,7 @@ export function errorMiddleware(logger: ILogger) {
       return;
     }
 
-    // Unexpected errors — log at error level with full stack trace
+    // Unexpected infrastructure / system errors — log at error level with full stack trace
     logger.error(err.message || 'Unhandled error', {
       error: err,
       stack: err.stack,

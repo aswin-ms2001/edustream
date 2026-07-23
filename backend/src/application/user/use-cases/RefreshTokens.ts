@@ -52,6 +52,9 @@ export class RefreshTokens {
       throw new AuthenticationError('User is not verified');
     }
 
+    // Enforce domain invariant for account status (throws BusinessRuleViolationError if suspended)
+    user.ensureCanLogin();
+
     // 6. Generate a new Access Token (without rotating the Refresh Token)
     const newPayload = { userId: user.id, role: user.role };
     const newAccessToken = this.tokenService.generateAccessToken(newPayload);

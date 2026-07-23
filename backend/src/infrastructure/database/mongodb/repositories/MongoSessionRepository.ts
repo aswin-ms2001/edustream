@@ -42,6 +42,14 @@ export class MongoSessionRepository implements ISessionRepository {
     );
   }
 
+  async revokeAllByUserId(userId: string, context?: ITransactionContext): Promise<void> {
+    await SessionModel.updateMany(
+      { userId, status: SessionStatus.ACTIVE },
+      { status: SessionStatus.REVOKED, revokedAt: new Date() },
+      { session: context?.session }
+    );
+  }
+
   private mapToDomain(sessionDoc: ISessionDocument): Session {
     return new Session(
       sessionDoc.sessionId,

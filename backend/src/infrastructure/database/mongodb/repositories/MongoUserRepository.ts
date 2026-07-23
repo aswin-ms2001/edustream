@@ -1,5 +1,7 @@
 import type { IUserRepository } from '@/domain/user/repositories/IUserRepository';
 import { User } from '@/domain/user/entities/User';
+import { Role } from '@/domain/user/entities/Role';
+import { UserStatus } from '@/domain/user/enums/UserStatus';
 import { UserModel } from '@/infrastructure/database/mongodb/models/UserModel';
 import { ConflictError } from '@/application/errors';
 
@@ -14,6 +16,11 @@ export class MongoUserRepository implements IUserRepository {
     const userDoc = await UserModel.findOne({ userId: id });
     if (!userDoc) return null;
     return this.mapToDomain(userDoc);
+  }
+
+  async existsByRole(role: Role): Promise<boolean> {
+    const count = await UserModel.countDocuments({ role });
+    return count > 0;
   }
 
   async save(user: User): Promise<User> {
@@ -41,12 +48,13 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   private mapToDomain(userDoc: any): User {
-    return new User(
+    return User.reconstitute(
       userDoc.userId,
       userDoc.name,
       userDoc.email,
-      userDoc.role,
+      userDoc.role as Role,
       userDoc.isVerified,
+      (userDoc.status as UserStatus) || UserStatus.ACTIVE,
       userDoc.createdAt,
       userDoc.updatedAt,
       userDoc.googleId,
