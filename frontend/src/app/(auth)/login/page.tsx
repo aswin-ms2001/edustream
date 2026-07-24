@@ -17,6 +17,8 @@ import { loginThunk } from '@/store/features/auth/authThunk';
 import { selectAuthLoading } from '@/store/features/auth/authSelectors';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
+import { getDashboardPathForRole } from '@/lib/auth/roleUtils';
+
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
@@ -37,7 +39,7 @@ export default function LoginPage() {
     try {
       const response = await dispatch(loginThunk(data)).unwrap();
       toast.success(`Welcome back, ${response.user.name}!`);
-      router.push('/student/dashboard');
+      router.push(getDashboardPathForRole(response.user.role));
     } catch (error) {
       const errorMsg = typeof error === 'string' ? error : 'Failed to log in. Please check your credentials.';
       toast.error(errorMsg);

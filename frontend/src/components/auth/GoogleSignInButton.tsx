@@ -6,6 +6,8 @@ import { googleLoginThunk } from '@/store/features/auth/authThunk';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+import { getDashboardPathForRole } from '@/lib/auth/roleUtils';
+
 interface GoogleSignInButtonProps {
   buttonId: string;
 }
@@ -35,7 +37,7 @@ export default function GoogleSignInButton({ buttonId }: GoogleSignInButtonProps
       try {
         const res = await dispatch(googleLoginThunk(response.credential)).unwrap();
         toast.success(`Welcome back, ${res.user.name}!`);
-        router.push('/student/dashboard');
+        router.push(getDashboardPathForRole(res.user.role));
       } catch (error) {
         const errorMsg = typeof error === 'string' ? error : 'Google login failed';
         toast.error(errorMsg);

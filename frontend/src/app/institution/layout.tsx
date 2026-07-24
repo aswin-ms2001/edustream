@@ -1,14 +1,14 @@
 import AppShell from "@/components/app/layout/AppShell";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-export default function StudentLayout({
+export default function InstitutionLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={["STUDENT"]}>
-      <AppShell role="student">
+    <ProtectedRoute allowedRoles={["INSTITUTION_ADMIN"]}>
+      <AppShell role="institution">
         {children}
       </AppShell>
     </ProtectedRoute>

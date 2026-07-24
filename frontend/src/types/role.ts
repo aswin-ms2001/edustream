@@ -1,4 +1,11 @@
 export type AppRole =
-  | "student"
+  | "SYSTEM_ADMIN"
+  | "INSTITUTION_ADMIN"
+  | "TEACHER"
+  | "STUDENT";
+
+export type RouteSection =
+  | "system-admin"
+  | "institution"
   | "teacher"
-  | "institution";
+  | "student";

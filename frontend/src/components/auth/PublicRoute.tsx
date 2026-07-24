@@ -3,7 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
-import { selectIsAuthenticated, selectIsInitializing } from "@/store/features/auth/authSelectors";
+import { selectCurrentUser, selectIsAuthenticated, selectIsInitializing } from "@/store/features/auth/authSelectors";
+import { getDashboardPathForRole } from "@/lib/auth/roleUtils";
 
 export default function PublicRoute({
   children,
@@ -11,14 +12,15 @@ export default function PublicRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const user = useAppSelector(selectCurrentUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isInitializing = useAppSelector(selectIsInitializing);
 
   React.useEffect(() => {
-    if (!isInitializing && isAuthenticated) {
-      router.replace("/student/dashboard");
+    if (!isInitializing && isAuthenticated && user) {
+      router.replace(getDashboardPathForRole(user.role));
     }
-  }, [isInitializing, isAuthenticated, router]);
+  }, [isInitializing, isAuthenticated, user, router]);
 
   if (isInitializing) {
     return null;
