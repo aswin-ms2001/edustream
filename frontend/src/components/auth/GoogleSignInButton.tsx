@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
 import { googleLoginThunk } from '@/store/features/auth/authThunk';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 import { getDashboardPathForRole } from '@/lib/auth/roleUtils';
 
