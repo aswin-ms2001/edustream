@@ -18,8 +18,11 @@ export class User {
 
   // Invariant Enforcement
   public ensureCanLogin(): void {
-    if (this.status !== UserStatus.ACTIVE) {
+    if (this.status === UserStatus.SUSPENDED) {
       throw new BusinessRuleViolationError('Account is suspended. Please contact administrator.', 'ACCOUNT_SUSPENDED');
+    }
+    if (this.status === UserStatus.PENDING_ACTIVATION) {
+      throw new BusinessRuleViolationError('Account is pending activation. Please accept your email invitation to activate your account.', 'ACCOUNT_PENDING_ACTIVATION');
     }
   }
 
@@ -43,6 +46,21 @@ export class User {
   // Domain Factory Methods
   static createSystemAdmin(id: string, name: string, email: string, passwordHash: string): User {
     return new User(id, name, email, Role.SYSTEM_ADMIN, true, UserStatus.ACTIVE, new Date(), new Date(), undefined, passwordHash);
+  }
+
+  static createPendingInstitutionAdmin(id: string, name: string, email: string): User {
+    return new User(
+      id,
+      name,
+      email,
+      Role.INSTITUTION_ADMIN,
+      true,
+      UserStatus.PENDING_ACTIVATION,
+      new Date(),
+      new Date(),
+      undefined,
+      undefined
+    );
   }
 
   static createInstitutionAdmin(id: string, name: string, email: string, passwordHash: string): User {
