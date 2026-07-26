@@ -53,6 +53,37 @@ export class MongoUserRepository implements IUserRepository {
     return this.mapToDomain(updatedUser);
   }
 
+  async findAllByRole(
+    role: Role,
+    options: { page: number; limit: number; search?: string; status?: UserStatus }
+  ): Promise<{ users: User[]; total: number }> {
+    const query: any = { role };
+
+    if (options.status) {
+      query.status = options.status;
+    }
+
+    if (options.search) {
+      const regex = new RegExp(options.search, 'i');
+      query.$or = [{ name: regex }, { email: regex }];
+    }
+
+    const skip = (options.page - 1) * options.limit;
+
+    const [userDocs, total] = await Promise.all([
+      UserModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(options.limit),
+      UserModel.countDocuments(query),
+    ]);
+
+    return {
+      users: userDocs.map((doc) => this.mapToDomain(doc)),
+      total,
+    };
+  }
+
   private mapToDomain(userDoc: any): User {
     return User.reconstitute(
       userDoc.userId,
