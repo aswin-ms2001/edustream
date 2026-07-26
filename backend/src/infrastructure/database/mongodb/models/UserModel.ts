@@ -20,7 +20,7 @@ const UserSchema: Schema = new Schema(
     userId: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: function(this: any) { return !this.googleId; } },
+    password: { type: String },
     role: { type: String, enum: Object.values(Role), required: true },
     isVerified: { type: Boolean, default: false },
     status: { type: String, enum: Object.values(UserStatus), default: UserStatus.ACTIVE, required: true },
