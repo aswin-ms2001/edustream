@@ -4,6 +4,7 @@ import { Role } from '@/domain/user/entities/Role';
 import { UserStatus } from '@/domain/user/enums/UserStatus';
 import { UserModel } from '@/infrastructure/database/mongodb/models/UserModel';
 import { ConflictError } from '@/application/errors';
+import type { ITransactionContext } from '@/domain/session/repositories/ISessionRepository';
 
 export class MongoUserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
@@ -23,14 +24,15 @@ export class MongoUserRepository implements IUserRepository {
     return count > 0;
   }
 
-  async save(user: User): Promise<User> {
+  async save(user: User, context?: ITransactionContext): Promise<User> {
     try {
       const { id, ...rest } = user;
       const newUser = new UserModel({
         userId: id,
         ...rest,
       });
-      const savedUser = await newUser.save();
+      const options = context?.session ? { session: context.session } : undefined;
+      const savedUser = await newUser.save(options);
       return this.mapToDomain(savedUser);
     } catch (error: any) {
       if (error.code === 11000) {
@@ -40,9 +42,13 @@ export class MongoUserRepository implements IUserRepository {
     }
   }
 
-  async update(id: string, userData: Partial<User>): Promise<User | null> {
+  async update(id: string, userData: Partial<User>, context?: ITransactionContext): Promise<User | null> {
     const { id: _, ...rest } = userData as any;
-    const updatedUser = await UserModel.findOneAndUpdate({ userId: id }, rest, { new: true });
+    const options: any = { new: true };
+    if (context?.session) {
+      options.session = context.session;
+    }
+    const updatedUser = await UserModel.findOneAndUpdate({ userId: id }, rest, options);
     if (!updatedUser) return null;
     return this.mapToDomain(updatedUser);
   }
