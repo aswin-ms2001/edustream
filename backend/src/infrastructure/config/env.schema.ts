@@ -14,7 +14,7 @@ export const envSchema = z.object({
   SYSTEM_ADMIN_NAME: z.string().min(1).default("System Administrator"),
   SMTP_HOST: z.string().min(1).default("smtp.gmail.com"),
   SMTP_PORT: z.coerce.number().default(587),
-  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_SECURE: z.preprocess((value) => value === "true",z.boolean().default(false)),
   SMTP_USER: z.string().email().optional().default("noreply@edustream.com"),
   SMTP_PASS: z.string().optional().default(""),
   EMAIL_FROM_NAME: z.string().default("EduStream"),
