@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import type { IEmailService, InstitutionAdminInvitationEmailDto } from '@/application/email';
+import type { IEmailService, InstitutionAdminInvitationEmailDto, TeacherInvitationEmailDto } from '@/application/email';
 import type { ILogger } from '@/application/port/services/ILogger';
 import { EmailDeliveryError } from '@/application/errors/EmailDeliveryError';
 import { EmailTemplateEngine } from './EmailTemplateEngine';
@@ -34,6 +34,11 @@ export class NodemailerSmtpEmailService implements IEmailService {
   async sendInstitutionAdminInvitation(data: InstitutionAdminInvitationEmailDto): Promise<void> {
     const { subject, html } = EmailTemplateEngine.renderInstitutionAdminInvitation(data);
     await this.sendMail(data.to, subject, html, 'InstitutionAdminInvitation');
+  }
+
+  async sendTeacherInvitation(data: TeacherInvitationEmailDto): Promise<void> {
+    const { subject, html } = EmailTemplateEngine.renderTeacherInvitation(data);
+    await this.sendMail(data.to, subject, html, 'TeacherInvitation');
   }
 
   private async sendMail(to: string, subject: string, html: string, context: string): Promise<void> {

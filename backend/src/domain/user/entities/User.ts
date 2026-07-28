@@ -62,12 +62,12 @@ export class User {
     return new User(id, name, email, Role.SYSTEM_ADMIN, true, UserStatus.ACTIVE, new Date(), new Date(), undefined, passwordHash);
   }
 
-  static createPendingInstitutionAdmin(id: string, name: string, email: string): User {
+  static createPendingUser(id: string, name: string, email: string, role: Role): User {
     return new User(
       id,
       name,
       email,
-      Role.INSTITUTION_ADMIN,
+      role,
       true,
       UserStatus.PENDING_ACTIVATION,
       new Date(),

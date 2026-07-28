@@ -43,7 +43,7 @@ export class InviteInstitutionAdmin {
 
     // Database Transaction: User [PENDING_ACTIVATION] + Invitation [PENDING]
     await this.transactionManager.execute(async (context) => {
-      const pendingUser = User.createPendingInstitutionAdmin(userId, dto.name, dto.email);
+      const pendingUser = User.createPendingUser(userId, dto.name, dto.email, Role.INSTITUTION_ADMIN);
       createdUser = await this.userRepository.save(pendingUser, context);
 
       await this.invitationRepository.revokeAllPendingForUser(userId, context);
