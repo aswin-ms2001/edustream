@@ -131,36 +131,44 @@ export default function AcceptInvitationPage({ searchParams }: PageProps) {
     }
   };
 
-  // State Machine Render Mapping
-  switch (pageState) {
-    case 'LOADING':
-      return <InvitationLoadingState />;
+  // State Machine Content Helper
+  const renderContent = () => {
+    switch (pageState) {
+      case 'LOADING':
+        return <InvitationLoadingState />;
 
-    case 'INVALID_TOKEN':
-      return <InvalidInvitationState />;
+      case 'INVALID_TOKEN':
+        return <InvalidInvitationState />;
 
-    case 'EXPIRED':
-      return <InvitationExpiredState />;
+      case 'EXPIRED':
+        return <InvitationExpiredState />;
 
-    case 'ALREADY_ACCEPTED':
-      return <InvitationAlreadyAcceptedState email={invitation?.email} />;
+      case 'ALREADY_ACCEPTED':
+        return <InvitationAlreadyAcceptedState email={invitation?.email} />;
 
-    case 'REVOKED':
-      return <InvitationRevokedState />;
+      case 'REVOKED':
+        return <InvitationRevokedState />;
 
-    case 'READY_TO_ACCEPT':
-      return invitation ? (
-        <AcceptInvitationForm
-          invitation={invitation}
-          onSubmit={handleAcceptSubmit}
-          loading={submitLoading}
-          error={errorMessage}
-        />
-      ) : (
-        <InvalidInvitationState />
-      );
+      case 'READY_TO_ACCEPT':
+        return invitation ? (
+          <AcceptInvitationForm
+            invitation={invitation}
+            onSubmit={handleAcceptSubmit}
+            loading={submitLoading}
+            error={errorMessage}
+          />
+        ) : (
+          <InvalidInvitationState />
+        );
 
-    default:
-      return <InvalidInvitationState />;
-  }
+      default:
+        return <InvalidInvitationState />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      {renderContent()}
+    </div>
+  );
 }
