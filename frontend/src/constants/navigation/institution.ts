@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  GraduationCap,
   BookOpen,
   Layers,
   Settings,
@@ -21,6 +22,11 @@ export const INSTITUTION_NAVIGATION: NavigationGroup[] = [
         label: "Teachers",
         href: "/institution/teachers",
         icon: Users,
+      },
+      {
+        label: "Students",
+        href: "/institution/students",
+        icon: GraduationCap,
       },
       {
         label: "Courses",
